@@ -8,6 +8,7 @@ from django.template import loader
 from django.shortcuts import render 
 
 
+
 # Display templates
 def index(request):
     return render(request, "index.html")
@@ -75,3 +76,29 @@ def customers(request,id=-1):
         upd_cust.city=data["city"]
         upd_cust.save()
         return Response({"done:success", "customer updated", upd_cust.name})
+    
+    # //////////// image upload / display
+# return all images to client (without serialize)
+@api_view(['GET'])
+def getImages(request):
+    res=[] #create an empty list
+    for img in Task.objects.all(): #run on every row in the table...
+        res.append({"title":img.title,
+                "description":img.description,
+                "completed":False,
+               "image":str( img.image)
+                }) #append row by to row to res list
+    return Response(res) #return array as json response
+
+
+# upload image method (with serialize)
+class APIViews(APIView):
+    parser_class=(MultiPartParser,FormParser)
+    def post(self,request,*args,**kwargs):
+        api_serializer=TaskSerializer(data=request.data)
+        if api_serializer.is_valid():
+                    api_serializer.save()
+                    return Response(api_serializer.data,status=status.HTTP_201_CREATED)
+                else:
+                    print('error',api_serializer.errors)
+                    return Response(api_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
