@@ -4,10 +4,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Product
 from .models import Customer
+from django.template import loader
+from django.shortcuts import render 
 
 
-def index(req):
-    return JsonResponse('hello home', safe=False)
+# Display templates
+def index(request):
+    return render(request, "index.html")
 
 
 # Products CRUD
